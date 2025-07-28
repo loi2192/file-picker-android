@@ -1,6 +1,12 @@
 # @capawesome/capacitor-file-picker
 
-Capacitor plugin that allows the user to select a file.
+**⚠️ ANDROID ONLY PLUGIN ⚠️**
+
+This is a modified version of the original plugin that **ONLY supports Android**. iOS support has been completely removed to avoid build conflicts.
+
+If you need iOS support, please use the original [@capawesome/capacitor-file-picker](https://github.com/capawesome-team/capacitor-plugins/tree/main/packages/file-picker) or another file picker plugin.
+
+Capacitor plugin that allows the user to select a file on Android devices.
 
 ## Installation
 

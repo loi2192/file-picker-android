@@ -1,0 +1,16 @@
+ios/
+!ios/README_ANDROID_ONLY.txt
+*.log
+*.tmp
+.DS_Store
+node_modules/
+src/
+.git/
+.github/
+*.md
+!README.md
+rollup.config.js
+tsconfig.json
+.eslintrc.js
+.prettierrc
+.swiftlint.yml 

@@ -9,7 +9,8 @@
   "files": [
     "android/src/main/",
     "android/build.gradle",
-    "dist/"
+    "dist/",
+    "scripts/"
   ],
   "author": "Robin Genz <mail@robingenz.dev>",
   "license": "MIT",
@@ -34,42 +35,42 @@
   "keywords": [
     "capacitor",
     "plugin",
-    "native"
+    "native",
+    "android-only"
   ],
   "scripts": {
     "verify:android": "cd android && ./gradlew clean build test && cd ..",
     "verify:web": "npm run build",
-    "lint": "npm run eslint && npm run prettier -- --check && npm run swiftlint -- lint",
-    "fmt": "npm run eslint -- --fix && npm run prettier -- --write && npm run swiftlint -- --fix --format",
+    "lint": "npm run eslint && npm run prettier -- --check",
+    "fmt": "npm run eslint -- --fix && npm run prettier -- --write",
     "eslint": "eslint . --ext ts",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
-    "swiftlint": "node-swiftlint",
     "docgen": "docgen --api FilePickerPlugin --output-readme README.md --output-json dist/docs.json",
     "build": "npm run clean && npm run docgen && tsc && rollup -c rollup.config.js",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "postinstall": "node scripts/postinstall.js"
   },
   "devDependencies": {
     "@capacitor/android": "5.0.0",
     "@capacitor/cli": "5.0.0",
     "@capacitor/core": "5.0.0",
     "@capacitor/docgen": "0.2.0",
-    "@capacitor/ios": "5.0.0",
     "@ionic/eslint-config": "0.3.0",
-    "@ionic/swiftlint-config": "1.1.2",
     "eslint": "7.32.0",
     "prettier": "2.3.2",
     "prettier-plugin-java": "1.0.2",
     "rimraf": "3.0.2",
     "rollup": "2.77.2",
-    "swiftlint": "1.0.1",
     "typescript": "4.1.5"
   },
   "peerDependencies": {
     "@capacitor/core": "^5.0.0"
   },
-  "swiftlint": "@ionic/swiftlint-config",
+  "optionalDependencies": {
+    "nice-napi": "*"
+  },
   "eslintConfig": {
     "extends": "@ionic/eslint-config/recommended"
   },
@@ -80,5 +81,8 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "os": [
+    "!darwin"
+  ]
 }

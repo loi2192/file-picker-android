@@ -7,97 +7,65 @@ var capacitorFilePicker = (function (exports, core) {
 
     class FilePickerWeb extends core.WebPlugin {
         constructor() {
-            super(...arguments);
-            this.ERROR_PICK_FILE_CANCELED = 'pickFiles canceled.';
+            super();
         }
-        async convertHeicToJpeg(_options) {
-            throw this.unimplemented('Not implemented on web.');
-        }
+        
         async pickFiles(options) {
-            const pickedFiles = await this.openFilePicker(options);
-            if (!pickedFiles) {
-                throw new Error(this.ERROR_PICK_FILE_CANCELED);
-            }
-            const result = {
-                files: [],
-            };
-            for (const pickedFile of pickedFiles) {
-                const file = {
-                    blob: pickedFile,
-                    modifiedAt: pickedFile.lastModified,
-                    mimeType: this.getMimeTypeFromUrl(pickedFile),
-                    name: this.getNameFromUrl(pickedFile),
-                    path: undefined,
-                    size: this.getSizeFromUrl(pickedFile),
-                };
-                if (options === null || options === void 0 ? void 0 : options.readData) {
-                    file.data = await this.getDataFromFile(pickedFile);
-                }
-                result.files.push(file);
-            }
-            return result;
+            return this.openFilePicker(options);
         }
+        
         async pickImages(options) {
-            return this.pickFiles(Object.assign({ types: ['image/*'] }, options));
+            return this.openFilePicker({ ...options, types: ['image/*'] });
         }
+        
         async pickMedia(options) {
-            return this.pickFiles(Object.assign({ types: ['image/*', 'video/*'] }, options));
+            return this.openFilePicker({ ...options, types: ['image/*', 'video/*'] });
         }
+        
         async pickVideos(options) {
-            return this.pickFiles(Object.assign({ types: ['video/*'] }, options));
+            return this.openFilePicker({ ...options, types: ['video/*'] });
         }
-        async openFilePicker(options) {
-            var _a;
-            const accept = ((_a = options === null || options === void 0 ? void 0 : options.types) === null || _a === void 0 ? void 0 : _a.join(',')) || '';
-            const multiple = !!(options === null || options === void 0 ? void 0 : options.multiple);
-            return new Promise(resolve => {
-                let onChangeFired = false;
+        
+        async openFilePicker(options = {}) {
+            return new Promise((resolve, reject) => {
                 const input = document.createElement('input');
                 input.type = 'file';
-                input.accept = accept;
-                input.multiple = multiple;
-                input.addEventListener('change', () => {
-                    onChangeFired = true;
+                input.multiple = options.multiple || false;
+                
+                if (options.types) {
+                    input.accept = options.types.join(',');
+                }
+
+                input.onchange = async () => {
                     const files = Array.from(input.files || []);
-                    resolve(files);
-                }, { once: true });
-                // Workaround to detect when Cancel is selected in the File Selection dialog box.
-                window.addEventListener('focus', async () => {
-                    await this.wait(1000);
-                    if (onChangeFired) {
-                        return;
-                    }
-                    resolve(undefined);
-                }, { once: true });
+                    const pickedFiles = await Promise.all(
+                        files.map(async (file) => {
+                            const pickedFile = {
+                                name: file.name,
+                                size: file.size,
+                                mimeType: file.type,
+                                modifiedAt: file.lastModified,
+                                blob: file,
+                            };
+
+                            if (options.readData) {
+                                const reader = new FileReader();
+                                pickedFile.data = await new Promise((resolve) => {
+                                    reader.onload = () => resolve(reader.result?.toString().split(',')[1]);
+                                    reader.readAsDataURL(file);
+                                });
+                            }
+
+                            return pickedFile;
+                        })
+                    );
+
+                    resolve({ files: pickedFiles });
+                };
+
+                input.oncancel = () => reject(new Error('User cancelled file picker'));
                 input.click();
             });
-        }
-        async getDataFromFile(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => {
-                    const result = typeof reader.result === 'string' ? reader.result : '';
-                    const splittedResult = result.split('base64,');
-                    const base64 = splittedResult[1] || '';
-                    resolve(base64);
-                };
-                reader.onerror = error => {
-                    reject(error);
-                };
-            });
-        }
-        getNameFromUrl(file) {
-            return file.name;
-        }
-        getMimeTypeFromUrl(file) {
-            return file.type;
-        }
-        getSizeFromUrl(file) {
-            return file.size;
-        }
-        async wait(delayMs) {
-            return new Promise(resolve => setTimeout(resolve, delayMs));
         }
     }
 
@@ -113,4 +81,4 @@ var capacitorFilePicker = (function (exports, core) {
     return exports;
 
 })({}, capacitorExports);
-//# sourceMappingURL=plugin.js.map
+//# sourceMappingURL=plugin.js.map 
