@@ -23,9 +23,16 @@ function isIOSProject() {
   return false;
 }
 
-// Chỉ cảnh báo, không fail
+// Cảnh báo khi detect iOS project
 if (isIOSProject()) {
   console.warn('\n⚠️  WARNING: @capawesome/capacitor-file-picker is ANDROID-ONLY');
   console.warn('This plugin does not support iOS and should not be used in iOS builds.');
   console.warn('If you need file picker for iOS, please use a different plugin.\n');
+}
+
+// Cảnh báo khi cài trên macOS (có thể có iOS development)
+if (os.platform() === 'darwin') {
+  console.warn('\n📱 NOTICE: This is an Android-only plugin');
+  console.warn('If you are developing for iOS, this plugin will not work on iOS platform.');
+  console.warn('The plugin will work fine for Android development on macOS.\n');
 } 
